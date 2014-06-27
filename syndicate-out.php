@@ -311,6 +311,7 @@ if ( is_admin() ) {
 		
 	 // Get required post information...
 						$postData = get_post( $postId );
+
 						if ( in_array( $postData->post_status, array( 'publish', 'inherit', 'future' ) ) ) {
 							
 	 // Include the required IXR libraries...
@@ -325,9 +326,11 @@ if ( is_admin() ) {
 									}
 
 	 // General post related stuff...
+	 // 2014-06-22 DHN Added post_author to support synchronization of authors across network.
 									$syndicateElements = array( 'post_type', 'post_status', 'post_title',
 									                            'post_excerpt', 'post_content', 'post_format',
 									                            'post_password', 'comment_status', 'ping_status',
+									                            'post_author',
 									                            'post_date_gmt' );
 									$remotePost = array();
 									foreach ( $postData AS $dataItemKey => $dataItemContent ) {
@@ -338,16 +341,6 @@ if ( is_admin() ) {
 									if ( isset( $remotePost['post_date_gmt'] ) ) {
 										$remotePost['post_date_gmt'] = new IXR_Date( strtotime( $remotePost['post_date_gmt'] ) );
 									}
-
-	 // Author Data fields...
-									$postAuthor = get_user_by( 'id', $postData->post_author );
-									if ( is_array( $postAuthor ) ) {
-										$remotePost['author_fields'] = array();
-										foreach ( $postAuthor AS $authorField ) {
-											$remotePost['author_fields'][] = array( 'key' => $authorField['author_key'],
-												                                        'value' => $authorField['author_value'] );
-											}
-										}
 
 	 // Custom fields...
 									$postMeta = has_meta( $postMetaId );
@@ -452,8 +445,60 @@ if ( is_admin() ) {
 	function syndicate_out_clean_for_remote( $remoteAddress, $remoteUsername, $remotePassword, $compiledGroupPost ) {
 
 		// Update Author record on remote site.
-		$id = get_remote_user_id($compiledGroupPost)
-		
+
+		// Get local author information
+		$localAuthor = get_user_by( 'id', $compiledGroupPost['post_author'] );
+
+		// Lookup local author on remote server
+		$remoteServer = new WP_HTTP_IXR_CLIENT( $remoteAddress . 'xmlrpc.php' );
+		$remoteAuthors = $remoteServer->query( 'wp.getAuthors', array( 0, $remoteUsername, $remotePassword ) );
+
+		if ( count( $remoteAuthors ) > 0 )
+		{
+			foreach ( $remoteAuthors AS $author => $authorDetails )
+			{
+				if ($localAuthor['user_email'] == $authorDetails['user_email'] )
+				{
+					$remoteAuthor = $authorDetails;
+					break;
+				}
+			}
+
+			// If we found a matching user email address on the remote server,
+			// then we want to update his information over there from the Host.
+			if ( isset( $remoteAuthor ) )
+			{
+				foreach ( $remoteAuthor AS $fieldKey => $fieldValue )
+				{
+					if ( !in_array( $fieldKey, array('id', 'password', 'email address' ) )
+					{
+						$remoteAuthor[$fieldKey] = $localAuthor[$fieldKey];
+					}
+				}
+			}
+			else
+			{
+				// We did not find matching email on remote server.
+				// Send local author information to remote server for new record.
+				$remoteServer = new WP_HTTP_IXR_CLIENT( $remoteAddress . 'xmlrpc.php' );
+				$newRemoteAuthor = array();
+				$newRemoteAuthor['username'] = localAuthor['username'];
+				$newRemoteAuthor['password'] = localAuthor['password'];
+				$newRemoteAuthor['content'] = array();
+				$newRemoteAuthor['content']['first_name']   = localAuthor['first_name'];
+				$newRemoteAuthor['content']['last_name']    = localAuthor['last_name'];
+				$newRemoteAuthor['content']['url']          = localAuthor['url'];
+				$newRemoteAuthor['content']['display_name'] = localAuthor['display_name'];
+				$newRemoteAuthor['content']['nickname']     = localAuthor['nickname'];
+				$newRemoteAuthor['content']['nicename']     = localAuthor['nicename'];
+				$newRemoteAuthor['content']['bio']          = localAuthor['bio'];
+
+				$remoteServer = new WP_HTTP_IXR_CLIENT( $remoteAddress . 'xmlrpc.php' );
+				$remoteServer->query( 'wp.getAuthors', array( 0, $remoteUsername, $remotePassword ) );
+			}
+		}
+
+
 		// Set post type to "Post"
 		if ( ( 'revision' == $compiledGroupPost['post_type'] ) ) {
 			$compiledGroupPost['post_type'] = 'post';
@@ -463,8 +508,28 @@ if ( is_admin() ) {
 	
 	}
 
+	function xlate_author($recPost)
+	{
+
+		
+		// Based on return code, either 
+		// update or create new author on remote server
+		
+		// Set id of remote author id into post data
+		
+	}
 	function get_remote_user_id( $user_mail )
 	{
+	 // Author Data fields...
+						$postAuthor = get_user_by( 'id', $postData->post_author );
+									if ( is_array( $postAuthor ) ) {
+										$remotePost['author_fields'] = array();
+										foreach ( $postAuthor AS $authorField ) {
+											$remotePost['author_fields'][] = array( 'key' => $authorField['author_key'],
+												                                        'value' => $authorField['author_value'] );
+											}
+										}
+
 	}
 
 	 // Get a list of tags for this post...
