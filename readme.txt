@@ -1,42 +1,39 @@
 === Plugin Name ===
+     Updated: 06/27/2014
 Contributors: ConfuzzledDuck
-Tags: syndication, xmlrpc, cross-post, post, content, autoblogging, duplicate
-Requires at least: 3.4
+              David Negley
+        Tags: syndication, xmlrpc, cross-post, post, content, autoblogging, duplicate
+    Requires: WP 3.4+
 Tested up to: 3.8
 Stable tag: 0.8.3
 
-Syndicates posts made in any specified category to another WP blog using WordPress' built in XML-RPC functionality.
+Syndicates posts made in any specified category to another WP blog using WordPress' built in XML-RPC functionality. Automatically matches existing author on remote site or, in the absence of existing author, creates author record on remote site.
 
 == Description ==
 
-Syndicate Out syndicates all posts made in a specified category (or optionally all posts) to any other WordPress
-blog(s) in real time. This enables blog owners to create automatic aggregating, or topic specific blogs from any
-number of different blog sources without relying on RSS feeds or any kind of timed events. Put simply: it re-posts
-the content of one blog to one or more other blogs.
+Syndicate Out syndicates all posts made in a specified category (or optionally all posts) to any other WordPress blog(s) in real time. This enables blog owners to create automatic aggregating, or topic specific blogs from any number of different blog sources without relying on RSS feeds or any kind of timed events. Put simply: it re-posts the content of one blog to one or more other blogs.
 
-The plugin uses WordPress' built in XML-RPC functionality to push posts to the target blog. XML-RPC will need
-to be enabled on the receiving blog in order for this plugin to work. For versions of WordPress 3.5 and later
-the XML-RPC is enabled by default. For versions prior to 3.5 it will need enabling in the admin panel.
+The plugin uses WordPress' built in XML-RPC functionality to push posts to the target blog. XML-RPC will need to be enabled on the receiving blog in order for this plugin to work. For versions of WordPress 3.5 and later the XML-RPC is enabled by default. For versions prior to 3.5 it will need enabling in the admin panel.
 
-For versions 0.8 and higher of the plugin the sending blog needs to be WordPress 3.1 or higher due to the use of
-the WordPress enhanced IXR client, and the receiving blog needs to be WordPress 3.4 or higher so that the XML-RPC
-WordPress API posts functionality is available.
+For versions 0.8 and higher of the plugin the sending blog needs to be WordPress 3.1 or higher due to the use of the WordPress enhanced IXR client, and the receiving blog needs to be WordPress 3.4 or higher so that the XML-RPC WordPress API posts functionality is available.
 
-More information is available, feature requests and bug reports are gladly accepted over on the
-[project's own blog](http://www.flutt.co.uk/development/wordpress-plugins/syndicate-out/).
+More information is available, feature requests and bug reports are gladly accepted over on the [project's own blog](http://www.flutt.co.uk/development/wordpress-plugins/syndicate-out/).
 
 == Installation ==
 
 1. Set up a user on the receiving blog which has permissions to publish new posts
-1. For versions of WordPress before 3.5 only: switch on XML-RPC remote publishing on the receiving blog ('Settings'->'Writing')
-1. Upload the syndicate-out directory to the `/wp-content/plugins/` directory of the sending blog
-1. Activate the plugin through the 'Plugins' menu in WordPress
-1. Configure the plugin through the 'Settings'->'Syndication' menu
+2. For versions of WordPress before 3.5 only: switch on XML-RPC remote publishing on the receiving blog ('Settings'->'Writing')
+3. Upload the syndicate-out directory to the `/wp-content/plugins/` directory of the sending blog
+4. Activate the plugin through the 'Plugins' menu in WordPress
+5. Configure the plugin through the 'Settings'->'Syndication' menu
 
 You may then test the plugin by posting to the selected syndication category.
 The post should immediately be cross-posted to the remote blog.
 
 == Changelog ==
+
+=  0.8.4 =
+* Added new feature to automatically transmit author info with post.
 
 = 0.8.3 =
 * Efficiency improvements in syndication routine.
