@@ -1,17 +1,21 @@
 <?php
 
-/*
-
-	Plugin Name: Syndicate Out
-	Plugin URI: http://www.flutt.co.uk/development/wordpress-plugins/syndicate-out/
-	Version: 0.8.3
-	Text Domain: syndicate-out
-	Domain Path: /lang
-	Description: Syndicates posts made in any specified category to another WP blog using WordPress' built in XML-RPC functionality.
-	Author: ConfuzzledDuck
-	Author URI: http://www.flutt.co.uk/
-
-*/
+/****************************************************************
+ *
+ * Plugin Name: Syndicate Out
+ *  Plugin URI: http://www.flutt.co.uk/development/wordpress-plugins/syndicate-out/
+ *     Version: 0.8.4
+ * Text Domain: syndicate-out
+ * Domain Path: /lang
+ * Description: Syndicates posts made in any specified category to another 
+ *              WP blog using WordPress' built in XML-RPC functionality.
+ *              As of version 0.8.4, automatically pushes Author info with post.
+ *      Author: ConfuzzledDuck
+ *              David Negley
+ *  Author URI: http://www.flutt.co.uk/
+ *              http://blog.mishkandavid.net
+ *
+ ***************************************************************/
 
 #
 #  syndicate-out.php
@@ -33,8 +37,8 @@
 #  GNU General Public License for more details.
 
 
-	 // Nothing in this plugin works outside of the admin area, so don't bother
-	 // loading it if we're not looking at the admin panel...
+// Nothing in this plugin works outside of the admin area, so don't bother
+// loading it if we're not looking at the admin panel...
 if ( is_admin() ) {
 
  /* Setup section. */
@@ -335,6 +339,16 @@ if ( is_admin() ) {
 										$remotePost['post_date_gmt'] = new IXR_Date( strtotime( $remotePost['post_date_gmt'] ) );
 									}
 
+	 // Author Data fields...
+									$postAuthor = get_user_by( 'id', $postData->post_author );
+									if ( is_array( $postAuthor ) ) {
+										$remotePost['author_fields'] = array();
+										foreach ( $postAuthor AS $authorField ) {
+											$remotePost['author_fields'][] = array( 'key' => $authorField['author_key'],
+												                                        'value' => $authorField['author_value'] );
+											}
+										}
+
 	 // Custom fields...
 									$postMeta = has_meta( $postMetaId );
 									if ( is_array( $postMeta ) ) {
@@ -437,12 +451,20 @@ if ( is_admin() ) {
 	 // specified, and if not strip out anything which might cause problems...
 	function syndicate_out_clean_for_remote( $remoteAddress, $remoteUsername, $remotePassword, $compiledGroupPost ) {
 
+		// Update Author record on remote site.
+		$id = get_remote_user_id($compiledGroupPost)
+		
+		// Set post type to "Post"
 		if ( ( 'revision' == $compiledGroupPost['post_type'] ) ) {
 			$compiledGroupPost['post_type'] = 'post';
 		}
 
 		return $compiledGroupPost;
 	
+	}
+
+	function get_remote_user_id( $user_mail )
+	{
 	}
 
 	 // Get a list of tags for this post...
